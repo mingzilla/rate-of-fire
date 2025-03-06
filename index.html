@@ -7,121 +7,150 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/gh/mingzilla/api-client-js@latest/api-client.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <!-- Added to improve render performance -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div id="app">
-        <h1>Rate of Fire</h1>
-        <p>API Performance Testing Tool</p>
-        
-        <!-- Competitor Setup Section -->
-        <div class="section">
-            <h2>Competitor Setup</h2>
-            <div class="form-group">
-                <label for="competitorCount">Number of Competitors:</label>
-                <input type="number" id="competitorCount" v-model.number="competitorCount" min="1" max="10">
-                <button @click="setupCompetitors">Setup</button>
+        <!-- Header with settings management -->
+        <div class="app-header">
+            <div class="title-area">
+                <h1>Rate of Fire</h1>
+                <p>API Performance Testing Tool</p>
             </div>
-            
-            <div v-if="competitors.length > 0" class="token-inputs">
-                <div v-for="(competitor, index) in competitors" :key="index" class="competitor-token">
-                    <label :for="'token-' + index">{{ competitor.name }}'s API Token:</label>
-                    <input :id="'token-' + index" type="text" v-model="competitor.token" placeholder="Enter API token">
-                </div>
-            </div>
-        </div>
-        
-        <!-- Preparation Form Section -->
-        <div class="section" v-if="competitors.length > 0">
-            <h2>Preparation - Get Items</h2>
-            <div class="form-group">
-                <label for="prepMethod">Method:</label>
-                <select id="prepMethod" v-model="preparation.method">
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="DELETE">DELETE</option>
-                    <option value="PATCH">PATCH</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="prepUrl">URL:</label>
-                <input type="text" id="prepUrl" v-model="preparation.url" placeholder="e.g., http://localhost:8224/pi/api/v2/charts">
-            </div>
-            
-            <div class="form-group">
-                <label for="prepBody">Body (optional):</label>
-                <textarea id="prepBody" v-model="preparation.body" placeholder="Enter request body (JSON)"></textarea>
-            </div>
-            
-            <button @click="sendPreparationRequests" :disabled="isPreparationLoading">
-                {{ isPreparationLoading ? 'Sending...' : 'Send' }}
-            </button>
-            
-            <div v-if="Object.keys(COMPETITOR_OBJECTS).length > 0" class="summary">
-                <h3>Items Retrieved:</h3>
-                <div v-for="(items, name) in COMPETITOR_OBJECTS" :key="name">
-                    <strong>{{ name }}:</strong> {{ items.length }} items
-                </div>
-            </div>
-        </div>
-        
-        <!-- Action Form Section -->
-        <div class="section" v-if="Object.keys(COMPETITOR_OBJECTS).length > 0">
-            <h2>Action - Performance Testing</h2>
-            <div class="form-group">
-                <label for="actionMethod">Method:</label>
-                <select id="actionMethod" v-model="action.method">
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="DELETE">DELETE</option>
-                    <option value="PATCH">PATCH</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="actionUrl">URL:</label>
-                <input type="text" id="actionUrl" v-model="action.url" placeholder="e.g., http://localhost:8224/pi/api/v2/charts/{id}/json">
-                <div class="hint">Include {id} in URL where the chart ID should be inserted</div>
-            </div>
-            
-            <div class="form-group">
-                <label for="actionBody">Body (optional):</label>
-                <textarea id="actionBody" v-model="action.body" placeholder="Enter request body (JSON)"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="requestsPerMinute">Concurrent Requests Per Minute:</label>
-                <input type="number" id="requestsPerMinute" v-model.number="action.requestsPerMinute" min="1" max="600">
-            </div>
-            
-            <div class="action-buttons">
-                <button class="start-btn" @click="startActionRequests" :disabled="isActionRunning || isCountingDown">
-                    {{ isCountingDown ? 'Starting in ' + countdownValue + '...' : 'Start' }}
+            <div class="settings-bar">
+                <button @click="downloadSettings" class="icon-button" title="Download Settings">
+                    <i class="fas fa-download"></i>
                 </button>
-                <button class="stop-btn" @click="stopActionRequests" :disabled="!isActionRunning">Stop</button>
+                <label for="upload-settings" class="icon-button" title="Upload Settings">
+                    <i class="fas fa-upload"></i>
+                    <input type="file" id="upload-settings" @change="uploadSettings" style="display:none">
+                </label>
             </div>
         </div>
         
-        <!-- Results Display Section -->
-        <div class="results-section" v-if="hasActionRun">
+        <!-- Competitor Setup Section - Compact -->
+        <div class="section compact">
+            <div class="section-row">
+                <h2>Competitor Setup</h2>
+                <div class="input-group">
+                    <label for="competitorCount">Competitors:</label>
+                    <input type="number" id="competitorCount" v-model.number="competitorCount" min="1" max="10" class="small-input">
+                </div>
+                <div class="input-group">
+                    <label for="itemsPerCompetitor">Items Per Competitor:</label>
+                    <input type="number" id="itemsPerCompetitor" v-model.number="itemsPerCompetitor" min="100" max="5000" class="small-input">
+                </div>
+                <button @click="setupCompetitors" class="compact-button">Setup</button>
+            </div>
+            
+            <div class="token-inputs-row" v-if="competitors.length > 0">
+                <div v-for="(competitor, index) in competitors" :key="index" class="token-input">
+                    <label :for="'token-' + index">{{ competitor.name }}:</label>
+                    <input :id="'token-' + index" type="text" v-model="competitor.token" placeholder="API token">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Forms Container - Side by Side -->
+        <div class="forms-container" v-if="competitors.length > 0">
+            <!-- Preparation Form - Compact -->
+            <div class="section compact form-half">
+                <h2>Preparation - Get Items</h2>
+                <div class="section-row">
+                    <div class="input-group">
+                        <label for="prepMethod">Method:</label>
+                        <select id="prepMethod" v-model="preparation.method" class="small-input">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="PATCH">PATCH</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group wide">
+                        <label for="prepUrl">URL:</label>
+                        <input type="text" id="prepUrl" v-model="preparation.url" placeholder="e.g., http://localhost:8224/pi/api/v2/charts">
+                    </div>
+                    
+                    <button @click="sendPreparationRequests" :disabled="isPreparationLoading" class="compact-button">
+                        {{ isPreparationLoading ? 'Sending...' : 'Send' }}
+                    </button>
+                </div>
+                
+                <div class="section-row">
+                    <div class="input-group full-width">
+                        <label for="prepBody">Body:</label>
+                        <textarea id="prepBody" v-model="preparation.body" placeholder="Enter request body (JSON)" class="compact-textarea"></textarea>
+                    </div>
+                </div>
+                
+                <div v-if="Object.keys(COMPETITOR_OBJECTS).length > 0" class="mini-summary">
+                    <span v-for="(items, name) in COMPETITOR_OBJECTS" :key="name" class="mini-stat">
+                        {{ name }}: {{ items.length }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Action Form - Compact -->
+            <div class="section compact form-half">
+                <h2>Action - Performance Testing</h2>
+                <div class="section-row">
+                    <div class="input-group">
+                        <label for="actionMethod">Method:</label>
+                        <select id="actionMethod" v-model="action.method" class="small-input">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="PATCH">PATCH</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group wide">
+                        <label for="actionUrl">URL:</label>
+                        <input type="text" id="actionUrl" v-model="action.url" placeholder="e.g., http://localhost:8224/pi/api/v2/charts/{id}/json">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="requestsPerMinute">Req/Min:</label>
+                        <input type="number" id="requestsPerMinute" v-model.number="action.requestsPerMinute" min="1" max="600" class="small-input">
+                    </div>
+                </div>
+                
+                <div class="section-row">
+                    <div class="input-group full-width">
+                        <label for="actionBody">Body:</label>
+                        <textarea id="actionBody" v-model="action.body" placeholder="Enter request body (JSON)" class="compact-textarea"></textarea>
+                    </div>
+                </div>
+                
+                <div class="action-buttons-row">
+                    <button class="start-btn" @click="startActionRequests" :disabled="isActionRunning || isCountingDown">
+                        {{ isCountingDown ? countdownValue + '...' : 'Start' }}
+                    </button>
+                    <button class="stop-btn" @click="stopActionRequests" :disabled="!isActionRunning">Stop</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Display Section - Compact -->
+        <div class="results-section compact" v-if="competitors.length > 0">
             <div v-for="(competitor, name) in competitorsData" :key="name" class="competitor-results">
                 <div class="competitor-header">
-                    <h3>{{ name }}</h3>
+                    <div class="competitor-name">{{ name }}</div>
                     <div class="stats">
-                        <span class="stat total">Total: {{ competitor.total }}</span>
-                        <span class="stat passed">Passed: {{ competitor.passed }}</span>
-                        <span class="stat running">Running: {{ competitor.running }}</span>
-                        <span class="stat failed">Failed: {{ competitor.failed }}</span>
+                        <span class="stat total" title="Total Requests">{{ competitor.total }}</span>
+                        <span class="stat passed" title="Passed Requests">{{ competitor.passed }}</span>
+                        <span class="stat running" title="Running Requests">{{ competitor.running }}</span>
+                        <span class="stat failed" title="Failed Requests">{{ competitor.failed }}</span>
                     </div>
                 </div>
                 
                 <div class="boxes-container">
                     <div v-for="(row, rowIndex) in competitor.rows" :key="rowIndex" class="box-row">
-                        <div v-for="(box, boxIndex) in row" :key="boxIndex" 
+                        <div v-for="(box, boxIndex) in row" :key="rowIndex + '-' + boxIndex" 
                              :class="['box', box.status]" 
                              :title="box.id || 'Not started'">
                         </div>
@@ -132,5 +161,6 @@
     </div>
     
     <script src="app.js"></script>
+    <div id="texture-settings" class="texture-dots"></div>
 </body>
 </html>

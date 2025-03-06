@@ -8,88 +8,208 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 
                  'Open Sans', 'Helvetica Neue', sans-serif;
-    line-height: 1.6;
+    line-height: 1.4;
     color: #333;
     background-color: #f5f5f5;
-    padding: 20px;
+    padding: 10px;
+    max-height: 100vh;
+    overflow: hidden;
 }
 
 h1, h2, h3 {
-    margin-bottom: 10px;
+    margin-bottom: 0;
     color: #2c3e50;
 }
 
 h1 {
-    font-size: 28px;
-    margin-bottom: 0;
+    font-size: 22px;
 }
 
 h2 {
-    font-size: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 8px;
-    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border: none;
+    white-space: nowrap;
 }
 
 p {
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     color: #666;
+    font-size: 14px;
+}
+
+/* Compact Layout */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.title-area {
+    display: flex;
+    align-items: center;
+}
+
+.app-header h1 {
+    margin-right: 10px;
+}
+
+.settings-bar {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    color: #2980b9;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    margin-left: 5px;
+    border-radius: 4px;
+}
+
+.icon-button:hover {
+    background-color: rgba(41, 128, 185, 0.1);
 }
 
 /* Section Styles */
 .section {
     background-color: #fff;
     border-radius: 6px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
 }
 
-/* Form Styles */
-.form-group {
-    margin-bottom: 15px;
+.section.compact {
+    padding: 10px;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
+.section-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.forms-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.form-half {
+    flex: 1;
+    min-width: 0; /* Allows flex items to shrink below content size */
+}
+
+/* Input Styles */
+.input-group {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.input-group label {
+    margin-bottom: 0;
+    margin-right: 5px;
+    font-weight: 500;
+    font-size: 13px;
     color: #444;
 }
 
-input, select {
+.input-group.wide {
+    flex: 2;
+}
+
+.input-group.full-width {
     width: 100%;
-    padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.input-group.full-width label {
+    margin-bottom: 3px;
+}
+
+input, select {
+    padding: 4px 6px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
-input[type="number"] {
-    width: 150px;
+.small-input {
+    width: 60px;
 }
 
-textarea {
+select.small-input {
+    width: 70px;
+}
+
+.wide input {
     width: 100%;
-    min-height: 100px;
-    padding: 10px;
+    font-size: 13px;
+}
+
+textarea.compact-textarea {
+    width: 100%;
+    min-height: 60px;
+    max-height: 80px;
+    padding: 4px 6px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-family: monospace;
-    font-size: 14px;
+    font-size: 13px;
     resize: vertical;
 }
 
+/* Token Inputs */
+.token-inputs-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.token-input {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 200px;
+}
+
+.token-input label {
+    width: 60px;
+    font-weight: 500;
+    font-size: 13px;
+    margin-right: 5px;
+}
+
+.token-input input {
+    flex: 1;
+}
+
+/* Button Styles */
 button {
     background-color: #2980b9;
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
     transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+button.compact-button {
+    padding: 4px 8px;
+    font-size: 13px;
 }
 
 button:hover {
@@ -103,6 +223,7 @@ button:disabled {
 
 .start-btn {
     background-color: #27ae60;
+    flex: 1;
 }
 
 .start-btn:hover {
@@ -111,61 +232,52 @@ button:disabled {
 
 .stop-btn {
     background-color: #c0392b;
+    flex: 1;
 }
 
 .stop-btn:hover {
     background-color: #e74c3c;
 }
 
-.hint {
-    font-size: 12px;
-    color: #666;
-    margin-top: 5px;
+.action-buttons-row {
+    display: flex;
+    gap: 8px;
 }
 
-/* Token Inputs */
-.token-inputs {
+/* Mini Summary */
+.mini-summary {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 15px;
+    gap: 8px;
 }
 
-.competitor-token {
-    flex: 1;
-    min-width: 200px;
-}
-
-/* Action Buttons */
-.action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
+.mini-stat {
+    background-color: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    white-space: nowrap;
 }
 
 /* Results Styling */
-.summary {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    border-left: 4px solid #3498db;
-}
-
 .results-section {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 20px;
+    gap: 10px;
+}
+
+.results-section.compact {
+    margin-top: 5px;
 }
 
 .competitor-results {
     flex: 1;
-    min-width: 300px;
+    min-width: 468px;
+    max-width: 468px;
     background-color: #fff;
     border-radius: 6px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 8px;
 }
 
 .competitor-header {
@@ -173,24 +285,45 @@ button:disabled {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
 }
 
-.competitor-header h3 {
-    margin: 0;
+.competitor-name {
+    font-weight: 600;
+    font-size: 14px;
 }
 
 .stats {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 5px;
 }
 
 .stat {
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 2px 5px;
+    border-radius: 3px;
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 500;
+    position: relative;
+}
+
+.stat.total::before {
+    content: "T:";
+    margin-right: 2px;
+}
+
+.stat.passed::before {
+    content: "P:";
+    margin-right: 2px;
+}
+
+.stat.running::before {
+    content: "R:";
+    margin-right: 2px;
+}
+
+.stat.failed::before {
+    content: "F:";
+    margin-right: 2px;
 }
 
 .total {
@@ -215,21 +348,20 @@ button:disabled {
 
 /* Boxes for Results */
 .boxes-container {
-    margin-top: 10px;
     overflow-x: hidden;
 }
 
 .box-row {
     display: flex;
     flex-wrap: wrap;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
 }
 
 .box {
     width: 8px;
     height: 8px;
-    margin-right: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-right: 1px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .box.empty {
@@ -250,12 +382,79 @@ button:disabled {
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
+    .forms-container {
+        flex-direction: column;
+    }
+    
+    .section-row {
+        flex-wrap: wrap;
+    }
+    
     .competitor-header {
         flex-direction: column;
         align-items: flex-start;
     }
     
     .stats {
-        margin-top: 10px;
+        margin-top: 5px;
     }
+}
+
+/* Textures
+Add to body tag as a class. Options: texture-dots, texture-stripes ...
+--------------------------- */
+/* Option 1: Subtle Dotted Pattern */
+.texture-dots {
+    background-color: #f5f5f5;
+    background-image: radial-gradient(#000 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    opacity: 0.1;
+}
+
+/* Option 2: Diagonal Stripes */
+.texture-stripes {
+    background: repeating-linear-gradient(
+        45deg,
+        #f5f5f5,
+        #f5f5f5 10px,
+        #e5e5e5 10px,
+        #e5e5e5 20px
+    );
+}
+
+/* Option 3: Noise Texture */
+.texture-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-color: #f5f5f5;
+    opacity: 0.15;
+}
+
+/* Option 4: Grid Pattern */
+.texture-grid {
+    background-color: #f5f5f5;
+    background-image: 
+        linear-gradient(#e5e5e5 1px, transparent 1px),
+        linear-gradient(90deg, #e5e5e5 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Option 5: Paper Texture */
+.texture-paper {
+    background-color: #f9f9f9;
+    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='smallGrid' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 8 0 L 0 0 0 8' fill='none' stroke='%23e0e0e0' stroke-width='0.5'/%3E%3C/pattern%3E%3Cpattern id='grid' width='80' height='80' patternUnits='userSpaceOnUse'%3E%3Crect width='80' height='80' fill='url(%23smallGrid)'/%3E%3Cpath d='M 80 0 L 0 0 0 80' fill='none' stroke='%23d0d0d0' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)' opacity='0.3'/%3E%3C/svg%3E");
+}
+
+html, body {
+    height: 100%;
+    position: relative;
+}
+
+#texture-settings {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
 }

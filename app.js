@@ -3,6 +3,7 @@ new Vue({
     data: {
         // Competitor setup
         competitorCount: 3,
+        itemsPerCompetitor: 2000, // New setting for items per competitor
         competitors: [],
         
         // Global variables as per requirements
@@ -37,10 +38,7 @@ new Vue({
         
         // Intervals for timing
         actionInterval: null,
-        countdownInterval: null,
-        
-        // For UI updates
-        renderTrigger: 0
+        countdownInterval: null
     },
     methods: {
         /**
@@ -64,7 +62,20 @@ new Vue({
                     name: names[i],
                     token: ''
                 });
+                
+                // Initialize empty competitor data structure for display
+                Vue.set(this.competitorsData, names[i], {
+                    total: 0,
+                    passed: 0,
+                    running: 0,
+                    failed: 0,
+                    rows: []
+                });
             }
+            
+            // Create empty boxes for visualization
+            this.updateTokensAndHeaders();
+            this.initializeCompetitorsData();
         },
         
         /**
@@ -184,12 +195,14 @@ new Vue({
         initializeCompetitorsData() {
             this.competitorsData = {};
             
-            for (const [name, objects] of Object.entries(this.COMPETITOR_OBJECTS)) {
+            // Process all competitors
+            for (const name in this.COMPETITOR_HEADERS) {
+                const objects = this.COMPETITOR_OBJECTS[name] || [];
                 const rows = [];
                 const boxesPerRow = 50; // 50 boxes per row as per requirements
                 
-                // Calculate how many rows we need (up to 2000 boxes per competitor)
-                const maxRows = Math.ceil(2000 / boxesPerRow);
+                // Calculate how many rows we need (based on itemsPerCompetitor)
+                const maxRows = Math.ceil(this.itemsPerCompetitor / boxesPerRow);
                 
                 for (let i = 0; i < maxRows; i++) {
                     const row = [];
@@ -201,8 +214,8 @@ new Vue({
                                 status: 'empty',
                                 id: objects[index].id || `item-${index}`
                             });
-                        } else if (index < 2000) {
-                            // Add empty placeholder boxes up to the 2000 limit
+                        } else if (index < this.itemsPerCompetitor) {
+                            // Add empty placeholder boxes up to the specified limit
                             row.push({
                                 status: 'empty',
                                 id: null
@@ -215,14 +228,101 @@ new Vue({
                     }
                 }
                 
-                this.competitorsData[name] = {
+                // Use Vue.set to ensure reactivity
+                Vue.set(this.competitorsData, name, {
                     total: 0,
                     passed: 0,
                     running: 0,
                     failed: 0,
                     rows: rows
-                };
+                });
             }
+            
+            // Force update to ensure the UI reflects changes
+            this.$forceUpdate();
+        },
+        
+        /**
+         * Downloads the current settings as a JSON file
+         */
+        downloadSettings() {
+            const settings = {
+                competitorCount: this.competitorCount,
+                itemsPerCompetitor: this.itemsPerCompetitor,
+                competitors: this.competitors,
+                preparation: this.preparation,
+                action: this.action
+            };
+            
+            const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'rate-of-fire-settings.json';
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
+        },
+        
+        /**
+         * Uploads and applies settings from a JSON file
+         */
+        uploadSettings(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const settings = JSON.parse(e.target.result);
+                    
+                    // Apply settings
+                    if (settings.competitorCount) {
+                        this.competitorCount = settings.competitorCount;
+                    }
+                    
+                    if (settings.itemsPerCompetitor) {
+                        this.itemsPerCompetitor = settings.itemsPerCompetitor;
+                    }
+                    
+                    if (settings.preparation) {
+                        this.preparation = settings.preparation;
+                    }
+                    
+                    if (settings.action) {
+                        this.action = settings.action;
+                    }
+                    
+                    // Setup competitors
+                    this.setupCompetitors();
+                    
+                    // Apply competitor tokens if provided
+                    if (settings.competitors && Array.isArray(settings.competitors)) {
+                        for (let i = 0; i < this.competitors.length && i < settings.competitors.length; i++) {
+                            if (settings.competitors[i].token) {
+                                this.competitors[i].token = settings.competitors[i].token;
+                            }
+                        }
+                    }
+                    
+                    // Update tokens and headers
+                    this.updateTokensAndHeaders();
+                    
+                } catch (error) {
+                    console.error('Error parsing settings file:', error);
+                    alert('Error loading settings. Please check that the file format is correct.');
+                }
+            };
+            
+            reader.readAsText(file);
+            
+            // Reset the file input so the same file can be selected again
+            event.target.value = '';
         },
         
         /**
@@ -305,20 +405,20 @@ new Vue({
                     const index = indices[name] % objects.length;
                     const obj = objects[index];
                     
-                    // Find box position (wrapping after 2000)
-                    const boxIndex = this.competitorsData[name].total % 2000;
+                    // Find box position (wrapping after itemsPerCompetitor)
+                    const boxIndex = this.competitorsData[name].total % this.itemsPerCompetitor;
                     const rowIndex = Math.floor(boxIndex / 50);
                     const colIndex = boxIndex % 50;
                     
                     if (rowIndex < this.competitorsData[name].rows.length && 
                         colIndex < this.competitorsData[name].rows[rowIndex].length) {
                         
-                        // Mark as running and update counters using Vue's $set for reactivity
-                        this.$set(this.competitorsData[name].rows[rowIndex][colIndex], 'status', 'running');
-                        this.competitorsData[name].total++;
-                        this.competitorsData[name].running++;
+                        // Immediately increment counters and update box to running state
+                        Vue.set(this.competitorsData[name].rows[rowIndex][colIndex], 'status', 'running');
+                        Vue.set(this.competitorsData[name], 'total', this.competitorsData[name].total + 1);
+                        Vue.set(this.competitorsData[name], 'running', this.competitorsData[name].running + 1);
                         
-                        // Force an update on this component
+                        // Force update to ensure UI reflects the changes
                         this.$forceUpdate();
                         
                         // Prepare API request
@@ -351,41 +451,37 @@ new Vue({
                             );
                         }
                         
-                        // Store current position for callback closure
+                        // Store current position and name for callback closure
+                        const currentName = name;
                         const currentRowIndex = rowIndex;
                         const currentColIndex = colIndex;
                         
                         // Send request
                         ApiClient.send(apiInput)
                             .then(output => {
-                                // Use Vue.nextTick to ensure UI updates
-                                Vue.nextTick(() => {
-                                    // Decrement running count
-                                    this.competitorsData[name].running--;
-                                    
-                                    // Update box status based on result using $set for reactivity
-                                    if (output.isSuccessful()) {
-                                        this.$set(this.competitorsData[name].rows[currentRowIndex][currentColIndex], 'status', 'pass');
-                                        this.competitorsData[name].passed++;
-                                    } else {
-                                        this.$set(this.competitorsData[name].rows[currentRowIndex][currentColIndex], 'status', 'fail');
-                                        this.competitorsData[name].failed++;
-                                    }
-                                    
-                                    // Force component update
-                                    this.$forceUpdate();
-                                });
+                                // Update counters - use Vue.set for reactivity
+                                Vue.set(this.competitorsData[currentName], 'running', this.competitorsData[currentName].running - 1);
+                                
+                                // Update box status based on result
+                                if (output.isSuccessful()) {
+                                    Vue.set(this.competitorsData[currentName].rows[currentRowIndex][currentColIndex], 'status', 'pass');
+                                    Vue.set(this.competitorsData[currentName], 'passed', this.competitorsData[currentName].passed + 1);
+                                } else {
+                                    Vue.set(this.competitorsData[currentName].rows[currentRowIndex][currentColIndex], 'status', 'fail');
+                                    Vue.set(this.competitorsData[currentName], 'failed', this.competitorsData[currentName].failed + 1);
+                                }
+                                
+                                // Force update to ensure UI reflects the changes
+                                this.$forceUpdate();
                             })
                             .catch(() => {
-                                // Handle failure with Vue.nextTick
-                                Vue.nextTick(() => {
-                                    this.competitorsData[name].running--;
-                                    this.competitorsData[name].failed++;
-                                    this.$set(this.competitorsData[name].rows[currentRowIndex][currentColIndex], 'status', 'fail');
-                                    
-                                    // Force component update
-                                    this.$forceUpdate();
-                                });
+                                // Update counters - use Vue.set for reactivity
+                                Vue.set(this.competitorsData[currentName], 'running', this.competitorsData[currentName].running - 1);
+                                Vue.set(this.competitorsData[currentName], 'failed', this.competitorsData[currentName].failed + 1);
+                                Vue.set(this.competitorsData[currentName].rows[currentRowIndex][currentColIndex], 'status', 'fail');
+                                
+                                // Force update to ensure UI reflects the changes
+                                this.$forceUpdate();
                             });
                     }
                     
@@ -406,3 +502,12 @@ new Vue({
         }
     }
 });
+
+
+// Random page texture
+window.onload = function() {
+    const classes = ['texture-dots', 'texture-stripes', 'texture-grid', 'texture-paper'];
+    const div = document.getElementById('texture-settings');
+    const randomClass = classes[Math.floor(Math.random() * classes.length)];
+    div.className = randomClass;
+};
