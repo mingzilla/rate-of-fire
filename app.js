@@ -37,7 +37,10 @@ new Vue({
         
         // Intervals for timing
         actionInterval: null,
-        countdownInterval: null
+        countdownInterval: null,
+        
+        // For UI updates
+        renderTrigger: 0
     },
     methods: {
         /**
@@ -256,7 +259,7 @@ new Vue({
                     // Reset box statuses
                     for (const row of this.competitorsData[name].rows) {
                         for (const box of row) {
-                            box.status = 'empty';
+                            this.$set(box, 'status', 'empty');
                         }
                     }
                 }
@@ -310,10 +313,13 @@ new Vue({
                     if (rowIndex < this.competitorsData[name].rows.length && 
                         colIndex < this.competitorsData[name].rows[rowIndex].length) {
                         
-                        // Mark as running and update counters
-                        this.competitorsData[name].rows[rowIndex][colIndex].status = 'running';
+                        // Mark as running and update counters using Vue's $set for reactivity
+                        this.$set(this.competitorsData[name].rows[rowIndex][colIndex], 'status', 'running');
                         this.competitorsData[name].total++;
                         this.competitorsData[name].running++;
+                        
+                        // Force an update on this component
+                        this.$forceUpdate();
                         
                         // Prepare API request
                         const url = this.action.url.replace('{id}', obj.id);
@@ -352,23 +358,34 @@ new Vue({
                         // Send request
                         ApiClient.send(apiInput)
                             .then(output => {
-                                // Decrement running count
-                                this.competitorsData[name].running--;
-                                
-                                // Update box status based on result
-                                if (output.isSuccessful()) {
-                                    this.competitorsData[name].rows[currentRowIndex][currentColIndex].status = 'pass';
-                                    this.competitorsData[name].passed++;
-                                } else {
-                                    this.competitorsData[name].rows[currentRowIndex][currentColIndex].status = 'fail';
-                                    this.competitorsData[name].failed++;
-                                }
+                                // Use Vue.nextTick to ensure UI updates
+                                Vue.nextTick(() => {
+                                    // Decrement running count
+                                    this.competitorsData[name].running--;
+                                    
+                                    // Update box status based on result using $set for reactivity
+                                    if (output.isSuccessful()) {
+                                        this.$set(this.competitorsData[name].rows[currentRowIndex][currentColIndex], 'status', 'pass');
+                                        this.competitorsData[name].passed++;
+                                    } else {
+                                        this.$set(this.competitorsData[name].rows[currentRowIndex][currentColIndex], 'status', 'fail');
+                                        this.competitorsData[name].failed++;
+                                    }
+                                    
+                                    // Force component update
+                                    this.$forceUpdate();
+                                });
                             })
                             .catch(() => {
-                                // Handle failure
-                                this.competitorsData[name].running--;
-                                this.competitorsData[name].failed++;
-                                this.competitorsData[name].rows[currentRowIndex][currentColIndex].status = 'fail';
+                                // Handle failure with Vue.nextTick
+                                Vue.nextTick(() => {
+                                    this.competitorsData[name].running--;
+                                    this.competitorsData[name].failed++;
+                                    this.$set(this.competitorsData[name].rows[currentRowIndex][currentColIndex], 'status', 'fail');
+                                    
+                                    // Force component update
+                                    this.$forceUpdate();
+                                });
                             });
                     }
                     

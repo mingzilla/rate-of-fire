@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/gh/mingzilla/api-client-js@latest/api-client.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- Added to improve render performance -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -58,16 +60,16 @@
                 {{ isPreparationLoading ? 'Sending...' : 'Send' }}
             </button>
             
-            <div v-if="Object.keys(competitorObjects).length > 0" class="summary">
+            <div v-if="Object.keys(COMPETITOR_OBJECTS).length > 0" class="summary">
                 <h3>Items Retrieved:</h3>
-                <div v-for="(items, name) in competitorObjects" :key="name">
+                <div v-for="(items, name) in COMPETITOR_OBJECTS" :key="name">
                     <strong>{{ name }}:</strong> {{ items.length }} items
                 </div>
             </div>
         </div>
         
         <!-- Action Form Section -->
-        <div class="section" v-if="Object.keys(competitorObjects).length > 0">
+        <div class="section" v-if="Object.keys(COMPETITOR_OBJECTS).length > 0">
             <h2>Action - Performance Testing</h2>
             <div class="form-group">
                 <label for="actionMethod">Method:</label>
