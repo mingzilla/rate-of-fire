@@ -169,7 +169,12 @@
         <div class="results-section compact" v-if="competitors.length > 0">
             <div v-for="(competitor, name) in competitorsData" :key="name" class="competitor-results">
                 <div class="competitor-header">
-                    <div class="competitor-name">{{ name }}</div>
+                    <div class="competitor-info">
+                        <div class="competitor-name">{{ name }}</div>
+                        <div v-if="competitorRankings[name]" class="competitor-rank" :class="competitorRankings[name].class">
+                            {{ competitorRankings[name].label }}
+                        </div>
+                    </div>
                     <div class="stats">
                         <span class="stat total" title="Total Requests">{{ competitor.total }}</span>
                         <span class="stat passed" title="Passed Requests">{{ competitor.passed }}</span>

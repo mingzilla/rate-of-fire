@@ -55,40 +55,122 @@ new Vue({
         // Initialize the report generator
         this.reportGenerator = new ReportGenerator(this);
     },
+    data: function() {
+        return {
+            // Competitor setup
+            competitorCount: 3,
+            itemsPerCompetitor: 2000, // Setting for items per competitor
+            competitors: [],
+            
+            // Global variables as per requirements
+            COMPETITOR_TOKENS: {}, // {"Andy": "XXX", "Bob": "YYY"}
+            COMPETITOR_HEADERS: {}, // {"Andy": {"Accept": "application/json", ...}}
+            COMPETITOR_OBJECTS: {}, // {"Andy": [obj1,obj2,...], "Bob": []}
+            
+            // Preparation form
+            preparation: {
+                method: 'GET',
+                url: '',
+                body: ''
+            },
+            isPreparationLoading: false,
+            
+            // Action form
+            action: {
+                method: 'GET',
+                url: '',
+                body: '',
+                requestsPerMinute: 60
+            },
+            
+            // State tracking
+            isActionRunning: false,
+            hasActionRun: false,
+            isCountingDown: false,
+            countdownValue: 3,
+            
+            // Results data
+            competitorsData: {}, // Tracks state of each competitor's requests
+            
+            // Rankings data - stored as data instead of computed to persist between runs
+            competitorRankings: {},
+            
+            // Intervals for timing
+            actionInterval: null,
+            countdownInterval: null,
+            
+            // Test timing tracking
+            testStartTime: null,
+            testEndTime: null,
+            actualTestStartTime: null, // After countdown
+            elapsedTime: 0, // Timer display
+            timerInterval: null, // Timer update interval
+            
+            // Report settings
+            sqlMatrixDuration: 120, // Default 120 seconds
+            reportGenerator: null
+        };
+    },
+    created() {
+        // Initialize the report generator
+        this.reportGenerator = new ReportGenerator(this);
+    },
     methods: {
         /**
          * Sets up the competitor columns based on the count input
+         * Preserves existing competitor names and tokens when possible
          */
         setupCompetitors() {
-            // Reset the competitor data
-            this.competitors = [];
-            this.COMPETITOR_TOKENS = {};
-            this.COMPETITOR_HEADERS = {};
-            this.COMPETITOR_OBJECTS = {};
-            this.competitorsData = {};
-            this.hasActionRun = false;
+            const previousCompetitors = [...this.competitors];
+            const existingCompetitorNames = previousCompetitors.map(comp => comp.name);
+            const existingCompetitorTokens = previousCompetitors.map(comp => comp.token);
             
-            // Generate names for competitors (auto-assigned)
-            const names = ['Andy', 'Bob', 'Chris', 'Diana', 'Eva', 'Frank', 'Grace', 'Helen', 'Ian', 'Jack'];
+            // Generate default names for new competitors (auto-assigned)
+            const defaultNames = ['Andy', 'Bob', 'Chris', 'Diana', 'Eva', 'Frank', 'Grace', 'Helen', 'Ian', 'Jack'];
+            
+            // Reset but preserve existing competitors where possible
+            const newCompetitors = [];
+            const newCompetitorsData = {};
             
             // Create competitor objects
-            for (let i = 0; i < this.competitorCount && i < names.length; i++) {
-                this.competitors.push({
-                    name: names[i],
-                    token: ''
+            for (let i = 0; i < this.competitorCount; i++) {
+                let name, token;
+                
+                if (i < previousCompetitors.length) {
+                    // Preserve existing competitor's name and token
+                    name = existingCompetitorNames[i];
+                    token = existingCompetitorTokens[i];
+                } else {
+                    // For new competitors, find an unused default name
+                    name = defaultNames.find(name => !existingCompetitorNames.includes(name)) || `Competitor ${i + 1}`;
+                    token = '';
+                    // Update our tracking of used names
+                    existingCompetitorNames.push(name);
+                }
+                
+                newCompetitors.push({
+                    name,
+                    token
                 });
                 
-                // Initialize empty competitor data structure for display
-                Vue.set(this.competitorsData, names[i], {
+                // Initialize empty competitor data structure
+                newCompetitorsData[name] = {
                     total: 0,
                     passed: 0,
                     running: 0,
                     failed: 0,
                     rows: []
-                });
+                };
             }
             
-            // Create empty boxes for visualization
+            // Update the data structures
+            this.competitors = newCompetitors;
+            this.competitorsData = newCompetitorsData;
+            this.COMPETITOR_OBJECTS = {};
+            this.hasActionRun = false;
+            this.competitorRankings = {}; // Reset rankings
+            
+            // Update headers and create empty boxes for visualization
             this.updateTokensAndHeaders();
             this.initializeCompetitorsData();
         },
@@ -463,11 +545,83 @@ new Vue({
         },
         
         /**
+         * Calculate rankings based on current pass counts
+         * Handles ties correctly and applies winner/loser badges appropriately
+         */
+        calculateRankings() {
+            const competitors = Object.entries(this.competitorsData);
+            if (competitors.length <= 1) {
+                this.competitorRankings = {}; // Don't show rankings if only one competitor
+                return;
+            }
+            
+            // Sort competitors by pass count (descending)
+            const sortedCompetitors = [...competitors].sort((a, b) => b[1].passed - a[1].passed);
+            
+            // Group competitors by pass count to handle ties
+            const passCounts = {};
+            sortedCompetitors.forEach(([name, data]) => {
+                const passCount = data.passed;
+                if (!passCounts[passCount]) {
+                    passCounts[passCount] = [];
+                }
+                passCounts[passCount].push(name);
+            });
+            
+            // Sort unique pass counts in descending order
+            const uniquePassCounts = Object.keys(passCounts).map(Number).sort((a, b) => b - a);
+            
+            // Find if there are multiple competitors in first or last position
+            const isFirstPlaceTied = passCounts[uniquePassCounts[0]].length > 1;
+            const isLastPlaceTied = passCounts[uniquePassCounts[uniquePassCounts.length - 1]].length > 1;
+            
+            // Create rankings object
+            const rankings = {};
+            let currentRank = 1;
+            
+            // Assign rankings, handling ties
+            uniquePassCounts.forEach(passCount => {
+                const names = passCounts[passCount];
+                names.forEach(name => {
+                    const isFirst = currentRank === 1;
+                    const isLast = currentRank + names.length - 1 === competitors.length;
+                    
+                    let label, cssClass;
+                    
+                    if (isFirst && !isFirstPlaceTied) {
+                        label = `No. ${currentRank} (winner)`;
+                        cssClass = 'rank-winner';
+                    } else if (isLast && !isLastPlaceTied) {
+                        label = `No. ${currentRank} (loser)`;
+                        cssClass = 'rank-loser';
+                    } else {
+                        label = `No. ${currentRank}`;
+                        cssClass = 'rank-normal';
+                    }
+                    
+                    rankings[name] = {
+                        position: currentRank,
+                        label: label,
+                        class: cssClass
+                    };
+                });
+                
+                // Move rank counter forward by the number of tied competitors
+                currentRank += passCounts[passCount].length;
+            });
+            
+            this.competitorRankings = rankings;
+        },
+        
+        /**
          * Executes the actual API requests after countdown
          */
         executeActionRequests() {
             this.isActionRunning = true;
             this.hasActionRun = true;
+            
+            // Reset and calculate initial rankings at test start
+            this.calculateRankings();
             
             // Record actual test start time (after countdown)
             this.actualTestStartTime = new Date();
@@ -565,6 +719,9 @@ new Vue({
                                 if (output.isSuccessful()) {
                                     Vue.set(this.competitorsData[currentName].rows[currentRowIndex][currentColIndex], 'status', 'pass');
                                     Vue.set(this.competitorsData[currentName], 'passed', this.competitorsData[currentName].passed + 1);
+                                    
+                                    // Update rankings when pass count changes
+                                    this.calculateRankings();
                                 } else {
                                     Vue.set(this.competitorsData[currentName].rows[currentRowIndex][currentColIndex], 'status', 'fail');
                                     Vue.set(this.competitorsData[currentName], 'failed', this.competitorsData[currentName].failed + 1);
@@ -596,6 +753,7 @@ new Vue({
         
         /**
          * Stops the action requests
+         * Preserves the competitor rankings
          */
         stopActionRequests() {
             clearInterval(this.actionInterval);
@@ -606,6 +764,8 @@ new Vue({
             
             // Record test end time
             this.testEndTime = new Date();
+            
+            // Note: We intentionally don't reset rankings when stopping
         },
         
         /**

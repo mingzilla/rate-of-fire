@@ -1,28 +1,55 @@
-/* General Styles */
+/* General Styles - Enhanced */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+:root {
+    --primary: #3a7bd5;
+    --primary-light: #5a93e0;
+    --primary-dark: #2c5f9e;
+    --secondary: #f6f8fa;
+    --accent: #2a5298;
+    --success: #2ecc71;
+    --success-light: #e8f5e9;
+    --success-dark: #27ae60;
+    --warning: #f39c12;
+    --warning-light: #fff3e0;
+    --warning-dark: #e67e22;
+    --danger: #e74c3c;
+    --danger-light: #ffebee;
+    --danger-dark: #c0392b;
+    --text: #2c3e50;
+    --text-light: #657786;
+    --text-lighter: #95a5a6;
+    --border: #e1e4e8;
+    --border-dark: #cfd8dc;
+    --shadow-color: rgba(0, 0, 0, 0.08);
+    --shadow-color-darker: rgba(0, 0, 0, 0.15);
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 
                  'Open Sans', 'Helvetica Neue', sans-serif;
-    line-height: 1.4;
-    color: #333;
-    background-color: #f5f5f5;
-    padding: 10px;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: #f5f8fa;
+    padding: 12px;
     max-height: 100vh;
-    overflow: hidden;
+    overflow: auto;
+    min-width: 1460px;
 }
 
 h1, h2, h3 {
     margin-bottom: 0;
-    color: #2c3e50;
+    color: var(--text);
+    letter-spacing: -0.02em;
 }
 
 h1 {
     font-size: 22px;
+    font-weight: 700;
 }
 
 h2 {
@@ -32,11 +59,12 @@ h2 {
     margin-bottom: 0;
     border: none;
     white-space: nowrap;
+    letter-spacing: -0.01em;
 }
 
 p {
     margin-bottom: 5px;
-    color: #666;
+    color: var(--text-light);
     font-size: 14px;
 }
 
@@ -45,7 +73,9 @@ p {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
 }
 
 .title-area {
@@ -55,6 +85,16 @@ p {
 
 .app-header h1 {
     margin-right: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.app-header p {
+    color: var(--text-light);
+    font-weight: 500;
+    margin-top: 8px;
 }
 
 .settings-bar {
@@ -65,41 +105,45 @@ p {
 .icon-button {
     background: none;
     border: none;
-    color: #2980b9;
+    color: var(--primary);
     cursor: pointer;
     font-size: 16px;
-    padding: 4px 8px;
-    margin-left: 5px;
-    border-radius: 4px;
+    padding: 6px 10px;
+    margin-left: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
 }
 
 .icon-button:hover {
-    background-color: rgba(41, 128, 185, 0.1);
+    background-color: rgba(58, 123, 213, 0.1);
+    transform: translateY(-1px);
 }
 
 /* Section Styles */
 .section {
     background-color: #fff;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
 }
 
 .section.compact {
-    padding: 10px;
+    padding: 14px;
 }
 
 .section-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .forms-container {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 12px;
 }
 
 .form-half {
@@ -116,10 +160,10 @@ p {
 
 .input-group label {
     margin-bottom: 0;
-    margin-right: 5px;
+    margin-right: 6px;
     font-weight: 500;
     font-size: 13px;
-    color: #444;
+    color: var(--text);
 }
 
 .input-group.wide {
@@ -133,31 +177,41 @@ p {
 }
 
 .input-group.full-width label {
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
 input, select {
-    padding: 4px 6px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
     font-size: 13px;
+    transition: all 0.15s ease;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.15);
 }
 
 .small-input {
-    width: 60px;
+    width: 64px;
 }
 
 .timer-display {
-    background-color: #f8f9fa;
-    padding: 4px 8px;
-    border-radius: 4px;
+    background-color: var(--secondary);
+    padding: 6px 10px;
+    border-radius: 6px;
     font-size: 13px;
     font-weight: 500;
-    color: #2c3e50;
+    color: var(--text);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
 }
 
 select.small-input {
-    width: 70px;
+    width: 76px;
 }
 
 .wide input {
@@ -169,47 +223,51 @@ textarea.compact-textarea {
     width: 100%;
     min-height: 60px;
     max-height: 80px;
-    padding: 4px 6px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: monospace;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
     font-size: 13px;
     resize: vertical;
+    transition: all 0.15s ease;
+    line-height: 1.4;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Token Inputs */
 .token-inputs-row {
     display: flex;
+    gap: 10px;
     flex-wrap: wrap;
-    gap: 8px;
 }
 
 .token-input {
     display: flex;
     align-items: center;
     flex: 1;
-    min-width: 200px;
 }
 
 .competitor-info {
     display: flex;
     width: 100%;
-    gap: 5px;
+    gap: 6px;
+    align-items: center;
 }
 
 .competitor-name-input {
     width: 80px;
     font-weight: 500;
     font-size: 13px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 4px 6px;
-    background-color: #f8f9fa;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    background-color: var(--secondary);
+    transition: all 0.15s ease;
 }
 
 .competitor-name-input:hover, .competitor-name-input:focus {
     background-color: #fff;
-    border-color: #3498db;
+    border-color: var(--primary-light);
 }
 
 .competitor-token-input {
@@ -218,64 +276,75 @@ textarea.compact-textarea {
 
 /* Button Styles */
 button {
-    background-color: #2980b9;
+    background-color: var(--primary);
     color: white;
     border: none;
-    padding: 6px 10px;
-    border-radius: 4px;
+    padding: 7px 12px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
     white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.01em;
 }
 
 button.compact-button {
-    padding: 4px 8px;
+    padding: 6px 10px;
     font-size: 13px;
 }
 
 button:hover {
-    background-color: #3498db;
+    background-color: var(--primary-light);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 button:disabled {
-    background-color: #95a5a6;
+    background-color: var(--text-lighter);
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 .start-btn {
-    background-color: #27ae60;
+    background-color: var(--success-dark);
     flex: 1;
 }
 
 .start-btn:hover {
-    background-color: #2ecc71;
+    background-color: var(--success);
 }
 
 .stop-btn {
-    background-color: #c0392b;
+    background-color: var(--danger-dark);
     flex: 1;
 }
 
 .stop-btn:hover {
-    background-color: #e74c3c;
+    background-color: var(--danger);
 }
 
 .action-buttons-row {
     display: flex;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .report-btn {
-    background-color: #3498db;
-    padding: 4px 8px;
+    background-color: var(--primary);
+    padding: 6px 10px;
     font-size: 12px;
 }
 
 .report-btn:hover {
-    background-color: #2980b9;
+    background-color: var(--primary-light);
 }
 
 /* Mini Summary */
@@ -283,21 +352,23 @@ button:disabled {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-top: 8px;
 }
 
 .mini-stat {
-    background-color: #f0f0f0;
-    padding: 2px 6px;
-    border-radius: 3px;
+    background-color: var(--secondary);
+    padding: 3px 8px;
+    border-radius: 4px;
     font-size: 12px;
     white-space: nowrap;
+    border: 1px solid var(--border);
 }
 
 /* Results Styling */
 .results-section {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
 }
 
 .results-section.compact {
@@ -309,80 +380,123 @@ button:disabled {
     min-width: 468px;
     max-width: 468px;
     background-color: #fff;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow-color);
     padding: 8px;
+    border: 1px solid var(--border);
 }
 
 .competitor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
 }
 
 .competitor-name {
     font-weight: 600;
     font-size: 14px;
+    color: var(--primary-dark);
+}
+
+/* New styles for competitor ranking */
+.competitor-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.competitor-rank {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.rank-winner {
+    background-color: var(--success-light);
+    color: var(--success-dark);
+    border: 1px solid #c8e6c9;
+}
+
+.rank-loser {
+    background-color: var(--danger-light);
+    color: var(--danger-dark);
+    border: 1px solid #ffcdd2;
+}
+
+.rank-normal {
+    background-color: var(--secondary);
+    color: var(--text);
+    border: 1px solid var(--border);
 }
 
 .stats {
     display: flex;
-    gap: 5px;
+    gap: 6px;
 }
 
 .stat {
-    padding: 2px 5px;
-    border-radius: 3px;
+    padding: 3px 7px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 500;
     position: relative;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid transparent;
+    min-width: 60px;
 }
 
 .stat.total::before {
     content: "T:";
-    margin-right: 2px;
+    margin-right: 3px;
 }
 
 .stat.passed::before {
     content: "P:";
-    margin-right: 2px;
+    margin-right: 3px;
 }
 
 .stat.running::before {
     content: "R:";
-    margin-right: 2px;
+    margin-right: 3px;
 }
 
 .stat.failed::before {
     content: "F:";
-    margin-right: 2px;
+    margin-right: 3px;
 }
 
 .total {
-    background-color: #f8f9fa;
-    color: #2c3e50;
+    background-color: var(--secondary);
+    color: var(--text);
+    border-color: var(--border);
 }
 
 .passed {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: var(--success-light);
+    color: var(--success-dark);
+    border-color: #c8e6c9;
 }
 
 .running {
-    background-color: #fff3e0;
-    color: #e65100;
+    background-color: var(--warning-light);
+    color: var(--warning-dark);
+    border-color: #ffe0b2;
 }
 
 .failed {
-    background-color: #ffebee;
-    color: #c62828;
+    background-color: var(--danger-light);
+    color: var(--danger-dark);
+    border-color: #ffcdd2;
 }
 
 /* Boxes for Results */
 .boxes-container {
-    overflow-x: hidden;
+    background-color: var(--secondary);
 }
 
 .box-row {
@@ -395,23 +509,42 @@ button:disabled {
     width: 8px;
     height: 8px;
     margin-right: 1px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin-bottom: 1px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 1px;
+    transition: background-color 0.2s ease;
 }
 
 .box.empty {
-    background-color: #eee;
+    background-color: #e8e8e8;
 }
 
 .box.pass {
-    background-color: #27ae60;
+    background-color: var(--success);
+    border-color: var(--success-dark);
 }
 
 .box.running {
-    background-color: #f39c12;
+    background-color: var(--warning);
+    border-color: var(--warning-dark);
+    animation: pulse 1.5s infinite;
 }
 
 .box.fail {
-    background-color: #e74c3c;
+    background-color: var(--danger);
+    border-color: var(--danger-dark);
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 /* Responsive Adjustments */
@@ -439,44 +572,65 @@ Add to body tag as a class. Options: texture-dots, texture-stripes ...
 --------------------------- */
 /* Option 1: Subtle Dotted Pattern */
 .texture-dots {
-    background-color: #f5f5f5;
-    background-image: radial-gradient(#000 1px, transparent 1px);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
     background-position: 0 0, 10px 10px;
-    opacity: 0.1;
+    opacity: 0.05;
+    pointer-events: none;
 }
 
 /* Option 2: Diagonal Stripes */
 .texture-stripes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     background: repeating-linear-gradient(
         45deg,
-        #f5f5f5,
-        #f5f5f5 10px,
-        #e5e5e5 10px,
-        #e5e5e5 20px
+        rgba(245, 248, 250, 0),
+        rgba(245, 248, 250, 0) 10px,
+        rgba(0, 0, 0, 0.03) 10px,
+        rgba(0, 0, 0, 0.03) 20px
     );
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /* Option 3: Noise Texture */
 .texture-noise {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    background-color: #f5f5f5;
-    opacity: 0.15;
+    background-color: transparent;
+    opacity: 0.03;
+    pointer-events: none;
 }
 
 /* Option 4: Grid Pattern */
 .texture-grid {
-    background-color: #f5f5f5;
+    position: absolute;
+    width: 100%;
+    height: 100%;
     background-image: 
-        linear-gradient(#e5e5e5 1px, transparent 1px),
-        linear-gradient(90deg, #e5e5e5 1px, transparent 1px);
+        linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
     background-size: 20px 20px;
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /* Option 5: Paper Texture */
 .texture-paper {
-    background-color: #f9f9f9;
-    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='smallGrid' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 8 0 L 0 0 0 8' fill='none' stroke='%23e0e0e0' stroke-width='0.5'/%3E%3C/pattern%3E%3Cpattern id='grid' width='80' height='80' patternUnits='userSpaceOnUse'%3E%3Crect width='80' height='80' fill='url(%23smallGrid)'/%3E%3Cpath d='M 80 0 L 0 0 0 80' fill='none' stroke='%23d0d0d0' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)' opacity='0.3'/%3E%3C/svg%3E");
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='smallGrid' width='8' height='8' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 8 0 L 0 0 0 8' fill='none' stroke='rgba(0,0,0,0.05)' stroke-width='0.5'/%3E%3C/pattern%3E%3Cpattern id='grid' width='80' height='80' patternUnits='userSpaceOnUse'%3E%3Crect width='80' height='80' fill='url(%23smallGrid)'/%3E%3Cpath d='M 80 0 L 0 0 0 80' fill='none' stroke='rgba(0,0,0,0.08)' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)' opacity='0.3'/%3E%3C/svg%3E");
+    opacity: 0.3;
+    pointer-events: none;
 }
 
 html, body {
