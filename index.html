@@ -47,8 +47,21 @@
             
             <div class="token-inputs-row" v-if="competitors.length > 0">
                 <div v-for="(competitor, index) in competitors" :key="index" class="token-input">
-                    <label :for="'token-' + index">{{ competitor.name }}:</label>
-                    <input :id="'token-' + index" type="text" v-model="competitor.token" placeholder="API token">
+                    <div class="competitor-info">
+                        <input 
+                            type="text" 
+                            v-model="competitor.name" 
+                            @change="updateCompetitorName(index, competitor.name)" 
+                            class="competitor-name-input" 
+                            :title="'Edit competitor name'"
+                        >
+                        <input 
+                            type="text" 
+                            v-model="competitor.token" 
+                            placeholder="API token" 
+                            class="competitor-token-input"
+                        >
+                    </div>
                 </div>
             </div>
         </div>

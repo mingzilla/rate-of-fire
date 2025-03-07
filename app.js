@@ -3,7 +3,7 @@ new Vue({
     data: {
         // Competitor setup
         competitorCount: 3,
-        itemsPerCompetitor: 2000, // New setting for items per competitor
+        itemsPerCompetitor: 2000, // Setting for items per competitor
         competitors: [],
         
         // Global variables as per requirements
@@ -91,6 +91,65 @@ new Vue({
             // Create empty boxes for visualization
             this.updateTokensAndHeaders();
             this.initializeCompetitorsData();
+        },
+        
+        /**
+         * Updates a competitor's name in all data structures
+         * @param {number} index - Index of the competitor
+         * @param {string} newName - New name for the competitor
+         */
+        updateCompetitorName(index, newName) {
+            if (!newName || newName.trim() === '') {
+                alert('Competitor name cannot be empty');
+                // Reset to the previous name
+                this.competitors[index].name = Object.keys(this.competitorsData)[index] || `Competitor ${index + 1}`;
+                return;
+            }
+            
+            // Trim whitespace
+            newName = newName.trim();
+            
+            // Check if the name already exists
+            const isDuplicate = this.competitors.some((comp, idx) => idx !== index && comp.name === newName);
+            if (isDuplicate) {
+                alert(`A competitor named "${newName}" already exists. Please choose a unique name.`);
+                // Reset to the previous name
+                this.competitors[index].name = Object.keys(this.competitorsData)[index] || `Competitor ${index + 1}`;
+                return;
+            }
+            
+            // Get the old name
+            const oldName = Object.keys(this.competitorsData)[index];
+            if (!oldName) return;
+            
+            // Update competitorsData
+            if (this.competitorsData[oldName]) {
+                // Create a new entry with the new name and copy the data
+                Vue.set(this.competitorsData, newName, this.competitorsData[oldName]);
+                // Delete the old entry
+                Vue.delete(this.competitorsData, oldName);
+            }
+            
+            // Update COMPETITOR_TOKENS
+            if (this.COMPETITOR_TOKENS[oldName]) {
+                this.COMPETITOR_TOKENS[newName] = this.COMPETITOR_TOKENS[oldName];
+                Vue.delete(this.COMPETITOR_TOKENS, oldName);
+            }
+            
+            // Update COMPETITOR_HEADERS
+            if (this.COMPETITOR_HEADERS[oldName]) {
+                this.COMPETITOR_HEADERS[newName] = this.COMPETITOR_HEADERS[oldName];
+                Vue.delete(this.COMPETITOR_HEADERS, oldName);
+            }
+            
+            // Update COMPETITOR_OBJECTS
+            if (this.COMPETITOR_OBJECTS[oldName]) {
+                this.COMPETITOR_OBJECTS[newName] = this.COMPETITOR_OBJECTS[oldName];
+                Vue.delete(this.COMPETITOR_OBJECTS, oldName);
+            }
+            
+            // Force update to ensure UI reflects changes
+            this.$forceUpdate();
         },
         
         /**
@@ -316,11 +375,16 @@ new Vue({
                     // Setup competitors
                     this.setupCompetitors();
                     
-                    // Apply competitor tokens if provided
+                    // Apply competitor tokens and names if provided
                     if (settings.competitors && Array.isArray(settings.competitors)) {
                         for (let i = 0; i < this.competitors.length && i < settings.competitors.length; i++) {
                             if (settings.competitors[i].token) {
                                 this.competitors[i].token = settings.competitors[i].token;
+                            }
+                            if (settings.competitors[i].name) {
+                                const oldName = this.competitors[i].name;
+                                this.competitors[i].name = settings.competitors[i].name;
+                                this.updateCompetitorName(i, settings.competitors[i].name);
                             }
                         }
                     }
