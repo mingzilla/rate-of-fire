@@ -182,7 +182,8 @@
                     <div v-for="(row, rowIndex) in competitor.rows" :key="rowIndex" class="box-row">
                         <div v-for="(box, boxIndex) in row" :key="rowIndex + '-' + boxIndex" 
                              :class="['box', box.status]" 
-                             :title="box.id || 'Not started'">
+                             :title="box.id || ''"
+                             :data-request-id="box.id">
                         </div>
                     </div>
                 </div>

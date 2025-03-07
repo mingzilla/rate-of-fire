@@ -509,6 +509,7 @@ new Vue({
                         // Immediately increment counters and update box to running state
                         Vue.set(this.competitorsData[name].rows[rowIndex][colIndex], 'status', 'running');
                         Vue.set(this.competitorsData[name].rows[rowIndex][colIndex], 'requestTime', requestTime);
+                        Vue.set(this.competitorsData[name].rows[rowIndex][colIndex], 'id', obj.id); // Ensure ID is set for this box
                         Vue.set(this.competitorsData[name], 'total', this.competitorsData[name].total + 1);
                         Vue.set(this.competitorsData[name], 'running', this.competitorsData[name].running + 1);
                         
