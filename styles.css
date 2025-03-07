@@ -147,6 +147,15 @@ input, select {
     width: 60px;
 }
 
+.timer-display {
+    background-color: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
 select.small-input {
     width: 70px;
 }
@@ -242,6 +251,17 @@ button:disabled {
 .action-buttons-row {
     display: flex;
     gap: 8px;
+    margin-bottom: 8px;
+}
+
+.report-btn {
+    background-color: #3498db;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.report-btn:hover {
+    background-color: #2980b9;
 }
 
 /* Mini Summary */

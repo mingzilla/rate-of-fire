@@ -38,7 +38,22 @@ new Vue({
         
         // Intervals for timing
         actionInterval: null,
-        countdownInterval: null
+        countdownInterval: null,
+        
+        // Test timing tracking
+        testStartTime: null,
+        testEndTime: null,
+        actualTestStartTime: null, // After countdown
+        elapsedTime: 0, // Timer display
+        timerInterval: null, // Timer update interval
+        
+        // Report settings
+        sqlMatrixDuration: 120, // Default 120 seconds
+        reportGenerator: null
+    },
+    created() {
+        // Initialize the report generator
+        this.reportGenerator = new ReportGenerator(this);
     },
     methods: {
         /**
@@ -365,6 +380,10 @@ new Vue({
                 }
             }
             
+            // Record test start time
+            this.testStartTime = new Date();
+            this.testEndTime = null;
+            
             // Start countdown
             this.isCountingDown = true;
             this.countdownValue = 3;
@@ -385,6 +404,13 @@ new Vue({
         executeActionRequests() {
             this.isActionRunning = true;
             this.hasActionRun = true;
+            
+            // Record actual test start time (after countdown)
+            this.actualTestStartTime = new Date();
+            this.elapsedTime = 0;
+            
+            // Start the timer
+            this.startTimer();
             
             // Calculate interval based on requests per minute
             const intervalMs = 60000 / this.action.requestsPerMinute;
@@ -413,8 +439,12 @@ new Vue({
                     if (rowIndex < this.competitorsData[name].rows.length && 
                         colIndex < this.competitorsData[name].rows[rowIndex].length) {
                         
+                        // Record request time
+                        const requestTime = new Date();
+                        
                         // Immediately increment counters and update box to running state
                         Vue.set(this.competitorsData[name].rows[rowIndex][colIndex], 'status', 'running');
+                        Vue.set(this.competitorsData[name].rows[rowIndex][colIndex], 'requestTime', requestTime);
                         Vue.set(this.competitorsData[name], 'total', this.competitorsData[name].total + 1);
                         Vue.set(this.competitorsData[name], 'running', this.competitorsData[name].running + 1);
                         
@@ -459,6 +489,10 @@ new Vue({
                         // Send request
                         ApiClient.send(apiInput)
                             .then(output => {
+                                // Record response time
+                                const responseTime = new Date();
+                                Vue.set(this.competitorsData[currentName].rows[currentRowIndex][currentColIndex], 'responseTime', responseTime);
+                                
                                 // Update counters - use Vue.set for reactivity
                                 Vue.set(this.competitorsData[currentName], 'running', this.competitorsData[currentName].running - 1);
                                 
@@ -475,6 +509,10 @@ new Vue({
                                 this.$forceUpdate();
                             })
                             .catch(() => {
+                                // Record response time
+                                const responseTime = new Date();
+                                Vue.set(this.competitorsData[currentName].rows[currentRowIndex][currentColIndex], 'responseTime', responseTime);
+                                
                                 // Update counters - use Vue.set for reactivity
                                 Vue.set(this.competitorsData[currentName], 'running', this.competitorsData[currentName].running - 1);
                                 Vue.set(this.competitorsData[currentName], 'failed', this.competitorsData[currentName].failed + 1);
@@ -497,17 +535,64 @@ new Vue({
         stopActionRequests() {
             clearInterval(this.actionInterval);
             clearInterval(this.countdownInterval);
+            clearInterval(this.timerInterval);
             this.isActionRunning = false;
             this.isCountingDown = false;
+            
+            // Record test end time
+            this.testEndTime = new Date();
+        },
+        
+        /**
+         * Starts the timer for tracking test duration
+         */
+        startTimer() {
+            // Clear any existing timer
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+            }
+            
+            const startTime = new Date().getTime();
+            
+            this.timerInterval = setInterval(() => {
+                const currentTime = new Date().getTime();
+                this.elapsedTime = Math.floor((currentTime - startTime) / 1000);
+            }, 1000);
+        },
+        
+        /**
+         * Formats seconds into MM:SS display
+         */
+        formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        },
+        
+        /**
+         * Updates the SQL matrix duration setting
+         */
+        updateSqlMatrixDuration() {
+            this.reportGenerator.setSqlMatrixDuration(this.sqlMatrixDuration);
+        },
+        
+        /**
+         * Downloads a Markdown report of the test results
+         */
+        downloadMarkdownReport() {
+            if (this.reportGenerator) {
+                this.reportGenerator.downloadMarkdownReport();
+            }
+        },
+        
+        /**
+         * Downloads a SQL report of the test results
+         */
+        downloadSqlReport() {
+            if (this.reportGenerator) {
+                this.reportGenerator.setSqlMatrixDuration(this.sqlMatrixDuration);
+                this.reportGenerator.downloadSqlReport();
+            }
         }
     }
 });
-
-
-// Random page texture
-window.onload = function() {
-    const classes = ['texture-dots', 'texture-stripes', 'texture-grid', 'texture-paper'];
-    const div = document.getElementById('texture-settings');
-    const randomClass = classes[Math.floor(Math.random() * classes.length)];
-    div.className = randomClass;
-};

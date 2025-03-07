@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="report-generator.js"></script>
 </head>
 <body>
     <div id="app">
@@ -131,6 +132,22 @@
                         {{ isCountingDown ? countdownValue + '...' : 'Start' }}
                     </button>
                     <button class="stop-btn" @click="stopActionRequests" :disabled="!isActionRunning">Stop</button>
+                    <button class="report-btn" @click="downloadMarkdownReport" :disabled="!hasActionRun" title="Download Markdown Report">
+                        <i class="fas fa-file-download"></i> MD
+                    </button>
+                    <button class="report-btn" @click="downloadSqlReport" :disabled="!hasActionRun" title="Download SQL Report">
+                        <i class="fas fa-database"></i> SQL
+                    </button>
+                </div>
+                
+                <div class="section-row">
+                    <div class="input-group">
+                        <label for="sqlMatrixDuration" title="Duration for SQL report metrics (seconds)">SQL Matrix Duration (s):</label>
+                        <input type="number" id="sqlMatrixDuration" v-model.number="sqlMatrixDuration" min="1" max="3600" class="small-input">
+                    </div>
+                    <div class="timer-display" v-if="isActionRunning || elapsedTime > 0">
+                        <span>Time: {{ formatTime(elapsedTime) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
