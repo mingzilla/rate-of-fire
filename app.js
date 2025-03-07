@@ -661,3 +661,11 @@ new Vue({
         }
     }
 });
+
+// Random page texture
+window.onload = function() {
+    const classes = ['texture-dots', 'texture-stripes', 'texture-grid', 'texture-paper'];
+    const div = document.getElementById('texture-settings');
+    const randomClass = classes[Math.floor(Math.random() * classes.length)];
+    div.className = randomClass;
+};
